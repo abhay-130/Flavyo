@@ -18,7 +18,7 @@ import com.example.flavyo.data.IceCreamData
 import com.example.flavyo.components.IceCreamItem
 
 @Composable
-fun SearchContent(
+fun SearchScreen(
     iceCreamList: List<IceCreamData>,
     cartItems: Map<String, Int>,
     onUpdateCart: (String, Int) -> Unit,

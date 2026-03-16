@@ -7,7 +7,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -27,7 +26,7 @@ fun OrderDetailsScreen(
     allIceCreams: List<IceCreamData>,
     cartItems: Map<String, Int>,
     onBack: () -> Unit,
-    onOrderPlaced: (Double, String) -> Unit
+    onProceedToPayment: (Double, String) -> Unit
 ) {
     val context = LocalContext.current
     val userPreferences = remember { UserPreferences(context) }
@@ -42,84 +41,139 @@ fun OrderDetailsScreen(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(Color.White)
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(horizontal = 24.dp)
     ) {
-        Box(modifier = Modifier.fillMaxWidth().padding(top = 40.dp)) {
+        // --- Header ---
+        Box(modifier = Modifier.fillMaxWidth().padding(top = 50.dp)) {
             IconButton(
                 onClick = onBack,
-                modifier = Modifier.background(Color(0xFFFFEEBC), CircleShape).size(40.dp)
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color(0xFFFFEEBC), CircleShape)
+                    .align(Alignment.CenterStart)
             ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Color(0xFFC69C2C))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color(0xFFC69C2C)
+                )
             }
+
+            Text(
+                text = "Order Details",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = Poppins,
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
 
+        Spacer(modifier = Modifier.height(30.dp))
+
+        // --- Delivery Info Section ---
         Text(
-            text = "Order Details",
-            fontSize = 28.sp,
+            text = "Delivery Information",
+            fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFFC1272D),
             fontFamily = Poppins,
-            modifier = Modifier
-                .padding(top = 10.dp, bottom = 32.dp)
+            color = Color.Black,
+            modifier = Modifier.padding(bottom = 12.dp)
         )
 
-        OrderField(label = "Name", value = userPreferences.userName ?: "N/A")
-        OrderField(label = "Address", value = userPreferences.userAddress ?: "N/A")
-        OrderField(label = "Phone", value = userPreferences.userEmail ?: "N/A")
+        InfoCard(label = "Recipient", value = userPreferences.userName ?: "Add Name in Profile")
+        InfoCard(label = "Address", value = userPreferences.userAddress ?: "Add Address in Profile")
+        InfoCard(label = "Contact", value = userPreferences.userEmail ?: "N/A")
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // --- Order Total Section ---
+        Text(
+            text = "Order Totals",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = Poppins,
+            color = Color.Black,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
 
         Card(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            border = BorderStroke(1.dp, Color(0xFFF0F0F0))
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FF)),
+            border = BorderStroke(1.dp, Color(0xFFEEEEEE))
         ) {
-            Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Total Amount", color = Color.Black, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), fontFamily = Poppins)
-                Text("Rs. ${totalAmount.toInt()}", color = Color(0xFFC1272D), fontSize = 22.sp, fontWeight = FontWeight.Bold, fontFamily = Poppins)
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Subtotal", color = Color.Gray, fontFamily = Poppins)
+                    Text("Rs. ${totalAmount.toInt()}", fontWeight = FontWeight.Medium, fontFamily = Poppins)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Delivery Fee", color = Color.Gray, fontFamily = Poppins)
+                    Text("FREE", color = Color(0xFF4CAF50), fontWeight = FontWeight.Bold, fontFamily = Poppins)
+                }
+                Divider(modifier = Modifier.padding(vertical = 12.dp), color = Color(0xFFE0E0E0))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Total Amount", fontWeight = FontWeight.Bold, fontSize = 18.sp, fontFamily = Poppins)
+                    Text("Rs. ${totalAmount.toInt()}", color = Color(0xFFC1272D), fontSize = 22.sp, fontWeight = FontWeight.Bold, fontFamily = Poppins)
+                }
             }
         }
-
-        Card(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            border = BorderStroke(1.dp, Color(0xFFF0F0F0))
-        ) {
-            Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Payment Method", color = Color.Black, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), fontFamily = Poppins)
-                Icon(Icons.Default.LocalShipping, null, tint = Color.Red)
-                Text(" COD", fontWeight = FontWeight.Bold, fontFamily = Poppins)
-            }
-        }
-
 
         Spacer(modifier = Modifier.weight(1f))
 
+        // --- Action Button ---
         Button(
-            onClick = { onOrderPlaced(totalAmount, cartSummary) },
-            modifier = Modifier.fillMaxWidth().height(120.dp).padding(bottom = 50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-            shape = RoundedCornerShape(16.dp),
-            elevation = ButtonDefaults.buttonElevation(8.dp)
+            onClick = { onProceedToPayment(totalAmount, cartSummary) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 40.dp)
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC1272D)),
+            shape = RoundedCornerShape(16.dp)
         ) {
-            Text("Place My Order", color = Color(0xFFC1272D), fontSize = 20.sp, fontWeight = FontWeight.Bold, fontFamily = Poppins)
+            Text(
+                "Proceed to Payment",
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = Poppins
+            )
         }
     }
 }
 
 @Composable
-fun OrderField(label: String, value: String) {
+fun InfoCard(label: String, value: String) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        shape = RoundedCornerShape(24.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         border = BorderStroke(1.dp, Color(0xFFF0F0F0))
     ) {
-        Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(label, fontWeight = FontWeight.Bold, modifier = Modifier.width(80.dp), fontSize = 18.sp, fontFamily = Poppins)
-            Text(value, color = Color.Gray, fontSize = 14.sp, fontFamily = Poppins)
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(text = label, color = Color.Gray, fontSize = 12.sp, fontFamily = Poppins)
+                Text(text = value, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, fontFamily = Poppins, color = Color.Black)
+            }
         }
     }
 }

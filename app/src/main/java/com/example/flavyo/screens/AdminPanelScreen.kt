@@ -55,7 +55,7 @@ fun AdminPanelScreen(
             horizontalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.flavyo_logo_red),
+                painter = painterResource(id = R.drawable.flavyo_cream_logo_red),
                 contentDescription = "Logo",
                 modifier = Modifier.size(60.dp)
             )
@@ -166,7 +166,8 @@ fun AdminPanelScreen(
             fontSize = 13.sp,
             fontFamily = CoveredByYourGrace,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 16.dp),
+            modifier = Modifier
+                .padding(bottom = 16.dp),
             lineHeight = 13.sp
         )
     }

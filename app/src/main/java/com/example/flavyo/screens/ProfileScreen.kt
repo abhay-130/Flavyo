@@ -23,7 +23,7 @@ import com.example.flavyo.ui.theme.Poppins
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileContent(onLogout: () -> Unit) {
+fun ProfileScreen(onLogout: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val userPreferences = remember { UserPreferences(context) }

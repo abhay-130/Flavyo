@@ -8,27 +8,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,45 +28,61 @@ import com.example.flavyo.data.OrderRequest
 import com.example.flavyo.data.RetrofitClient
 import com.example.flavyo.data.UserPreferences
 import com.example.flavyo.ui.theme.Poppins
+import androidx.compose.runtime.LaunchedEffect
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 @Composable
 fun OrderSuccessScreen(
     totalAmount: Double,
-    cartSummary: String, // Pass this from CartScreen (e.g., "2x Mango, 1x Choco")
-    onGoHome: () -> Unit
+    cartSummary: String,
+    onGoHome: () -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val userPreferences = remember { UserPreferences(context) }
 
-    // Animation & Saving State
     var isVisible by remember { mutableStateOf(false) }
     var isSavingToSheet by remember { mutableStateOf(true) }
 
-    // 1. TRIGGER ANIMATION AND API CALL ON START
     LaunchedEffect(Unit) {
         isVisible = true
-
         scope.launch {
             try {
+                val orderId = UUID.randomUUID().toString().substring(0, 8).uppercase()
+                val userEmail = userPreferences.userEmail ?: "Guest"
+
                 val orderRequest = OrderRequest(
-                    id = UUID.randomUUID().toString().substring(0, 8).uppercase(),
-                    userEmail = userPreferences.userEmail ?: "Guest",
+                    id = orderId,
+                    userEmail = userEmail,
                     timestamp = System.currentTimeMillis(),
                     totalAmount = totalAmount,
                     itemsString = cartSummary
                 )
 
+                // 1. Save the Order to the 'Orders' sheet
                 val response = RetrofitClient.authApi.saveOrder(order = orderRequest)
 
                 if (response.isSuccessful && response.body()?.status == "success") {
+
+                    // 2. TRIGGER THE NOTIFICATION (This makes the bell work)
+                    try {
+                        RetrofitClient.authApi.sendNotification(
+                            params = mapOf(
+                                "target" to userEmail,
+                                "title" to "Order Placed! 🍦",
+                                "message" to "Your delicious order of $cartSummary has been received!"
+                            )
+                        )
+                    } catch (e: Exception) {
+                        Log.e("NotificationError", "Failed to send notification row")
+                    }
+
                     isSavingToSheet = false
-                    Log.d("OrderSuccess", "Order recorded in Excel successfully")
+                    userPreferences.hasNewNotification = true
                 }
             } catch (e: Exception) {
-                Log.e("OrderError", "Failed to save to sheet: ${e.localizedMessage}")
+                Log.e("OrderError", "Failed: ${e.localizedMessage}")
                 isSavingToSheet = false
             }
         }
@@ -104,7 +104,7 @@ fun OrderSuccessScreen(
                 text = "Congrats",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = Poppins, // Use your branding font
+                fontFamily = Poppins,
                 color = Color.Black
             )
 
@@ -117,7 +117,6 @@ fun OrderSuccessScreen(
                 color = Color.Black
             )
 
-            // --- DATA SAVING STATUS ---
             Spacer(modifier = Modifier.height(12.dp))
             if (isSavingToSheet) {
                 Text("Syncing with ledger...", fontSize = 14.sp, color = Color.Gray, fontFamily = Poppins)
@@ -127,7 +126,6 @@ fun OrderSuccessScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // --- ANIMATED SUCCESS CIRCLE ---
             AnimatedVisibility(
                 visible = isVisible,
                 enter = scaleIn(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)) + fadeIn()
@@ -136,13 +134,11 @@ fun OrderSuccessScreen(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.size(240.dp)
                 ) {
-                    // Floating Bubbles
                     Bubble(size = 28.dp, Color(0xFFC1272D), Modifier.align(Alignment.TopStart).offset(x = 20.dp, y = 30.dp))
                     Bubble(size = 18.dp, Color(0xFFC1272D), Modifier.align(Alignment.CenterStart).offset(x = 10.dp, y = 60.dp))
                     Bubble(size = 14.dp, Color(0xFFC1272D), Modifier.align(Alignment.TopEnd).offset(x = (-20).dp, y = 50.dp))
                     Bubble(size = 8.dp, Color(0xFFC1272D), Modifier.align(Alignment.BottomEnd).offset(x = (-40).dp, y = (-20).dp))
 
-                    // Main Red Circle
                     Surface(
                         shape = CircleShape,
                         color = Color(0xFFC1272D),
@@ -183,21 +179,11 @@ fun CustomTick(modifier: Modifier) {
     Canvas(modifier = modifier) {
         val width = size.width
         val height = size.height
-
         val path = Path().apply {
             moveTo(width * 0.2f, height * 0.5f)
             lineTo(width * 0.45f, height * 0.75f)
             lineTo(width * 0.85f, height * 0.3f)
         }
-
-        drawPath(
-            path = path,
-            color = Color.White,
-            style = Stroke(
-                width = 20f,
-                cap = StrokeCap.Round,
-                join = StrokeJoin.Round
-            )
-        )
+        drawPath(path = path, color = Color.White, style = Stroke(width = 20f, cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }

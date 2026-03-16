@@ -28,6 +28,14 @@ class UserPreferences(context: Context) {
         get() = sharedPreferences.getString("userAddress", null)
         set(value) = sharedPreferences.edit().putString("userAddress", value).apply()
 
+    var hasNewNotification: Boolean
+        get() = sharedPreferences.getBoolean("has_new_notif", false)
+        set(value) = sharedPreferences.edit().putBoolean("has_new_notif", value).apply()
+
+    var lastKnownNotificationCount: Int
+        get() = sharedPreferences.getInt("lastKnownNotificationCount", 0)
+        set(value) = sharedPreferences.edit().putInt("lastKnownNotificationCount", value).apply()
+
     fun logout() {
         sharedPreferences.edit().clear().apply()
     }

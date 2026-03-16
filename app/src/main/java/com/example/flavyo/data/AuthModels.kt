@@ -19,12 +19,6 @@ data class AuthResponse(
     val user: Userdata? = null,
 )
 
-data class Userdata(
-    val name: String? = null,
-    val address: String? = null,
-    val email: String? = null
-)
-
 // Data class for Order requests/responses
 data class OrderRequest(
     val id: String?,

@@ -8,34 +8,51 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.example.flavyo.components.BannerCarousel
 import com.example.flavyo.components.IceCreamItem
 import com.example.flavyo.components.PopularHeader
 import com.example.flavyo.data.IceCreamData
+import com.example.flavyo.components.HeaderSection
 
 @Composable
-fun HomeContent(
-    items: List<IceCreamData>,
-    isLoading: Boolean,
+fun HomeScreen(
+    iceCreamList: List<IceCreamData>,
     cartItems: Map<String, Int>,
+    isLoading: Boolean,
     onUpdateCart: (String, Int) -> Unit,
-    onItemClick: (IceCreamData) -> Unit
+    onItemClick: (IceCreamData) -> Unit,
+    onNotificationClick: () -> Unit,
+    hasNotification: Boolean
 ) {
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = Color(0xFFC1272D))
-        }
-    } else {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            item { BannerCarousel() }
-            item { PopularHeader() }
-            items(items) { item ->
-                IceCreamItem(
-                    data = item,
-                    count = cartItems[item.id] ?: 0,
-                    onCountChange = { newCount -> onUpdateCart(item.id, newCount) },
-                    onItemClick = { onItemClick(item) }
-                )
+    Column(modifier = Modifier.fillMaxSize()) {
+        HeaderSection(
+            hasNotification = hasNotification,
+            onNotificationClick = onNotificationClick
+        )
+
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Color(0xFFC1272D))
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                item { BannerCarousel() }
+                item { PopularHeader() }
+                items(iceCreamList) { item ->
+                    val count = cartItems[item.id] ?: 0
+                    IceCreamItem(
+                        data = item,
+                        count = count,
+                        onCountChange = { newCount ->
+                            onUpdateCart(item.id, newCount)
+                        },
+                        onItemClick = { onItemClick(item) }
+                    )
+                }
             }
         }
     }

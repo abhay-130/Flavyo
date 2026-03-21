@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -16,9 +17,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.flavyo.data.AuthRequest
 import com.example.flavyo.data.OrderResponse
 import com.example.flavyo.data.RetrofitClient
-import com.example.flavyo.data.AuthRequest
 import com.example.flavyo.ui.theme.Poppins
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -35,7 +36,6 @@ fun AdminOrdersScreen(
     var orders by remember { mutableStateOf<List<OrderResponse>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
-    // Map title to status filter
     val statusFilter = when (title) {
         "Pending Orders" -> "Pending"
         "Completed Orders" -> "Accepted"
@@ -43,7 +43,6 @@ fun AdminOrdersScreen(
         else -> null
     }
 
-    // Function to fetch orders
     val fetchOrders: suspend () -> Unit = {
         isLoading = true
         try {
@@ -105,7 +104,7 @@ fun AdminOrdersScreen(
                                         )
                                         if (response.isSuccessful && response.body()?.status == "success") {
                                             Toast.makeText(context, "Order $newStatus", Toast.LENGTH_SHORT).show()
-                                            fetchOrders() // Refresh list
+                                            fetchOrders()
                                         } else {
                                             Toast.makeText(context, "Failed: ${response.body()?.message}", Toast.LENGTH_SHORT).show()
                                         }
@@ -129,11 +128,12 @@ fun AdminOrderItem(
     onStatusUpdate: (String) -> Unit
 ) {
     val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
-    val dateString = dateFormat.format(Date(order.timestamp ?: 0L))
+    val timestampLong = order.timestamp?.toLongOrNull() ?: 0L
+    val dateString = dateFormat.format(Date(timestampLong))
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF0ED)),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
@@ -143,11 +143,13 @@ fun AdminOrderItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Showing Customer Name as the primary ID
                 Text(
-                    text = "Order #${order.id?.take(8)?.uppercase() ?: ""}",
+                    text = order.customerName ?: "Customer",
                     fontWeight = FontWeight.Bold,
                     fontFamily = Poppins,
-                    fontSize = 16.sp
+                    fontSize = 18.sp,
+                    color = Color.Black
                 )
                 Text(
                     text = "Rs. ${order.totalAmount}",
@@ -157,7 +159,8 @@ fun AdminOrderItem(
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Customer: ${order.userEmail}", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray)
+            Text(text = "Email: ${order.userEmail}", fontSize = 12.sp, fontFamily = Poppins, color = Color.Gray)
+            Text(text = "Order ID: #${order.id?.take(8)}", fontSize = 12.sp, fontFamily = Poppins, color = Color.LightGray)
             Text(text = "Date: $dateString", fontSize = 12.sp, fontFamily = Poppins, color = Color.Gray)
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = "Items: ${order.itemsString}", fontSize = 14.sp, fontFamily = Poppins)
@@ -172,7 +175,7 @@ fun AdminOrderItem(
                         onClick = { onStatusUpdate("Accepted") },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp)
                     ) {
                         Text("Accept", color = Color.White, fontFamily = Poppins)
                     }
@@ -180,7 +183,7 @@ fun AdminOrderItem(
                         onClick = { onStatusUpdate("Cancelled") },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp)
                     ) {
                         Text("Cancel", color = Color.White, fontFamily = Poppins)
                     }

@@ -4,24 +4,39 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flavyo.data.IceCreamData
 import com.example.flavyo.data.getDrawableId
+import com.example.flavyo.ui.theme.Poppins
 
 @Composable
 fun IceCreamItem(
@@ -41,90 +56,108 @@ fun IceCreamItem(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Updated: Use 'image' field from data (assuming it refers to a drawable name)
             Image(
-                painter = painterResource(id = getDrawableId(data.imageResName)),
+                painter = painterResource(id = getDrawableId(data.image)),
                 contentDescription = null,
-                modifier = Modifier.size(70.dp).clip(RoundedCornerShape(12.dp)).clickable { onItemClick() }
+                modifier = Modifier
+                    .size(80.dp) // Slightly larger to fit new info
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { onItemClick() }
             )
 
             Column(modifier = Modifier.weight(1f).padding(horizontal = 12.dp).clickable { onItemClick() }) {
-                Text(text = data.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(text = "flavour", color = Color.LightGray, fontSize = 12.sp)
-                Text(text = "Rs. ${data.price}", color = Color(0xFFC1272D), fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            }
+                Text(text = data.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, fontFamily = Poppins)
 
-            if (isRecent) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(Color(0xFFC1272D), RoundedCornerShape(8.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        // This is the key: it keeps the bottom of both texts on the same line
-                        verticalAlignment = Alignment.Bottom
-                    ) {
+                // Delete description text from here (it stays in DetailScreen)
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // 2. Vertical Price Stack
+                Column {
+                    if (data.mrp?.isNotEmpty() == true && data.mrp != data.price) {
                         Text(
-                            text = "x",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp, // --- DECREASE THIS to control 'x' size ---
-                            modifier = Modifier.padding(bottom = 0.dp) // Tiny nudge to keep it on the baseline
-                        )
-                        Text(
-                            text = "$count",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp, // --- Keep number larger ---
-                            modifier = Modifier.padding(bottom = 1.dp) // Adjust this to center the group vertically
+                            text = "Rs. ${data.mrp}",
+                            style = TextStyle(
+                                textDecoration = TextDecoration.LineThrough,
+                                fontFamily = Poppins
+                            ),
+                            color = Color.LightGray,
+                            fontSize = 13.sp
                         )
                     }
-                }
-            } else {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.width(110.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        // MINUS
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .background(Color(0xFFFFEBEE), RoundedCornerShape(8.dp))
-                                .clickable { if (count > 0) onCountChange(count - 1) },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Remove, null, tint = Color.Red, modifier = Modifier.size(20.dp))
-                        }
-
-                        Text(text = "$count", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-
-                        // PLUS
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .background(Color(0xFFC1272D), RoundedCornerShape(8.dp))
-                                .clickable { onCountChange(count + 1) },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Add, null, tint = Color.White, modifier = Modifier.size(20.dp))
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = null,
-                        tint = Color.Black,
-                        modifier = Modifier.size(22.dp).clickable { onCountChange(0) }
+                    Text(
+                        text = "Rs. ${data.price}",
+                        color = Color(0xFFC1272D),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        fontFamily = Poppins
                     )
                 }
             }
+
+            if (isRecent) {
+                RecentBadge(count)
+            } else {
+                CounterSection(count, onCountChange)
+            }
         }
+    }
+}
+
+@Composable
+fun RecentBadge(count: Int) {
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .background(Color(0xFFC1272D), RoundedCornerShape(8.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(text = "x", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+            Text(text = "$count", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        }
+    }
+}
+
+@Composable
+fun CounterSection(count: Int, onCountChange: (Int) -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(110.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // MINUS
+            IconButtonBox(icon = Icons.Default.Remove, bgColor = Color(0xFFFFEBEE), iconColor = Color.Red) {
+                if (count > 0) onCountChange(count - 1)
+            }
+
+            Text(text = "$count", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+
+            // PLUS
+            IconButtonBox(icon = Icons.Default.Add, bgColor = Color(0xFFC1272D), iconColor = Color.White) {
+                onCountChange(count + 1)
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Icon(
+            imageVector = Icons.Default.Delete,
+            contentDescription = null,
+            tint = Color.Gray,
+            modifier = Modifier.size(20.dp).clickable { onCountChange(0) }
+        )
+    }
+}
+
+@Composable
+fun IconButtonBox(icon: androidx.compose.ui.graphics.vector.ImageVector, bgColor: Color, iconColor: Color, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .background(bgColor, RoundedCornerShape(8.dp))
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(icon, null, tint = iconColor, modifier = Modifier.size(18.dp))
     }
 }

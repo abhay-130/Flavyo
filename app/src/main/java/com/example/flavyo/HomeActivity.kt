@@ -6,21 +6,40 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.example.flavyo.components.BottomNavigationBar
 import com.example.flavyo.data.IceCreamData
 import com.example.flavyo.data.NotificationItem
-import com.example.flavyo.data.RetrofitClient
-import com.example.flavyo.data.UserPreferences
-import com.example.flavyo.screens.*
-import com.example.flavyo.ui.theme.FlavyoTheme
 import com.example.flavyo.data.Order
 import com.example.flavyo.data.OrderResponse
+import com.example.flavyo.data.RetrofitClient
+import com.example.flavyo.data.UserPreferences
+import com.example.flavyo.screens.CartScreen
+import com.example.flavyo.screens.HistoryContent
+import com.example.flavyo.screens.HomeScreen
+import com.example.flavyo.screens.IceCreamDetailScreen
+import com.example.flavyo.screens.OrderDetailsScreen
+import com.example.flavyo.screens.OrderHistoryDetailScreen
+import com.example.flavyo.screens.OrderSuccessScreen
+import com.example.flavyo.screens.PaymentMethodScreen
+import com.example.flavyo.screens.PaymentProcessingScreen
+import com.example.flavyo.screens.ProfileScreen
+import com.example.flavyo.screens.SearchScreen
+import com.example.flavyo.screens.UserNotificationScreen
+import com.example.flavyo.ui.theme.FlavyoTheme
 
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +56,8 @@ class HomeActivity : ComponentActivity() {
 fun MainAppContainer() {
     val context = LocalContext.current
     val userPreferences = remember { UserPreferences(context) }
+    // Remember the scroll
+    val homeScrollState = rememberLazyListState() // Add this for Home position
 
     // Check if user is logged in
     if (userPreferences.userEmail == null) {
@@ -193,6 +214,7 @@ fun MainAppContainer() {
                             iceCreamList = iceCreamList,
                             cartItems = cartMap,
                             isLoading = isLoading,
+                            scrollState = homeScrollState,
                             onUpdateCart = { id, newCount ->
                                 val item = iceCreamList.find { it.id == id }
                                 if (item != null) {
@@ -286,7 +308,7 @@ fun MainAppContainer() {
                             Order(
                                 id = resp.id ?: "",
                                 items = itemsMap,
-                                timestamp = resp.timestamp ?: 0L,
+                                timestamp = resp.timestamp?.toLongOrNull() ?: 0L,
                                 totalAmount = resp.totalAmount?.toInt() ?: 0
                             )
                         }

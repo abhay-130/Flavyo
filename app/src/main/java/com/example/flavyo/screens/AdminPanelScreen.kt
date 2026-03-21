@@ -1,17 +1,44 @@
 package com.example.flavyo.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CurrencyRupee
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.PersonAddAlt
+import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,6 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flavyo.R
+import com.example.flavyo.RetrofitClient
 import com.example.flavyo.ui.theme.CoveredByYourGrace
 import com.example.flavyo.ui.theme.Poppins
 
@@ -39,6 +67,39 @@ fun AdminPanelScreen(
     onOrderHistoryClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
+    var pendingCount by remember { mutableStateOf(0) }
+    var completedCount by remember { mutableStateOf(0) }
+    var totalRevenue by remember { mutableStateOf(0.0) }
+    var hasNewPending by remember { mutableStateOf(false) }
+
+    // --- Admin Heartbeat Logic ---
+    LaunchedEffect(Unit) {
+        while (true) {
+            try {
+                // Fetch all orders to calculate counts and revenue
+                val response = RetrofitClient.authApi.getAllOrders(creds = com.example.flavyo.data.AuthRequest())
+                if (response.isSuccessful) {
+                    val allOrders = response.body() ?: emptyList()
+
+                    val pending = allOrders.filter { it.status == "Pending" || it.status == null }
+                    val completed = allOrders.filter { it.status == "Accepted" }
+
+                    // Logic for the Green/Red Dot
+                    if (pending.size > pendingCount) {
+                        hasNewPending = true
+                    }
+
+                    pendingCount = pending.size
+                    completedCount = completed.size
+                    totalRevenue = completed.sumOf { it.totalAmount ?: 0.0 }
+                }
+            } catch (e: Exception) {
+                Log.e("AdminPanel", "Sync Error", e)
+            }
+            kotlinx.coroutines.delay(10000) // Check every 10 seconds
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -117,16 +178,19 @@ fun AdminPanelScreen(
                 SummaryItem(
                     icon = Icons.Default.Info,
                     label = "Pending\nOrders",
-                    value = "30",
+                    value = pendingCount.toString(), // Real count
                     iconColor = Color(0xFFC1272D),
                     textColor = Color.Red,
-                    showBadge = true,
-                    onClick = onPendingOrdersClick
+                    showBadge = hasNewPending, // Show dot if new orders arrived
+                    onClick = {
+                        hasNewPending = false // Clear dot when clicked
+                        onPendingOrdersClick()
+                    }
                 )
                 SummaryItem(
                     icon = Icons.Default.CheckCircle,
                     label = "Completed\nOrders",
-                    value = "10",
+                    value = completedCount.toString(), // Real count
                     iconColor = Color(0xFF4CAF50),
                     textColor = Color(0xFF4CAF50),
                     onClick = onCompletedOrdersClick
@@ -134,7 +198,7 @@ fun AdminPanelScreen(
                 SummaryItem(
                     icon = Icons.Default.CurrencyRupee,
                     label = "Total\nRevenue",
-                    value = "Rs. 3500",
+                    value = "Rs. ${totalRevenue.toInt()}", // Real Revenue
                     iconColor = Color.Black,
                     textColor = Color.Black,
                     onClick = onRevenueClick
@@ -199,6 +263,8 @@ fun SummaryItem(
                 tint = iconColor,
                 modifier = Modifier.size(iconSize)
             )
+
+            // This is the notification dot logic
             if (showBadge) {
                 Box(
                     modifier = Modifier
@@ -232,7 +298,7 @@ fun SummaryItem(
 fun AdminActionCard(
     title: String,
     icon: ImageVector,
-    iconSize: androidx.compose.ui.unit.Dp = 36.dp,
+    iconSize: androidx.compose.ui.unit.Dp,
     onClick: () -> Unit
 ) {
     Card(

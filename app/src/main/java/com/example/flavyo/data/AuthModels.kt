@@ -1,5 +1,7 @@
 package com.example.flavyo.data
 
+import com.google.gson.annotations.SerializedName
+
 // The data we send to the sheet
 data class AuthRequest(
     val name: String? = null,
@@ -19,20 +21,23 @@ data class AuthResponse(
     val user: Userdata? = null,
 )
 
-// Data class for Order requests/responses
+// Data class for Order requests/responses matching the Apps Script JSON keys
 data class OrderRequest(
-    val id: String?,
-    val userEmail: String?,
-    val timestamp: Long?,
-    val totalAmount: Double?,
-    val itemsString: String?
+    @SerializedName("customerName") val customerName: String?,
+    @SerializedName("userEmail") val userEmail: String?,
+    @SerializedName("timestamp") val timestamp: String?,
+    @SerializedName("totalAmount") val totalAmount: Double?,
+    @SerializedName("itemsString") val itemsString: String?,
+    @SerializedName("status") val status: String,
+    @SerializedName("id") val id: String?
 )
 
 data class OrderResponse(
-    val id: String? = null,
-    val userEmail: String? = null,
-    val timestamp: Long? = null,
-    val totalAmount: Double? = null,
-    val itemsString: String? = null,
-    val status: String? = null
+    @SerializedName("customerName") val customerName: String? = null,
+    @SerializedName("userEmail") val userEmail: String? = null,
+    @SerializedName("timestamp") val timestamp: String? = null,
+    @SerializedName("totalAmount") val totalAmount: Double? = null,
+    @SerializedName("itemsString") val itemsString: String? = null,
+    @SerializedName("status") val status: String? = null,
+    @SerializedName("id") val id: String? = null
 )

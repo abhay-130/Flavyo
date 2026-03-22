@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.flavyo.ui.theme.Poppins
 
 @Composable
 fun HeaderSection(
@@ -22,19 +23,22 @@ fun HeaderSection(
     onNotificationClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(24.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             "Explore Your Favorite Ice Creams",
-            fontSize = 22.sp,
+            fontSize = 20.sp,
+            fontFamily = Poppins,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.width(250.dp)
+            modifier = Modifier.weight(1f)
         )
         
+        Spacer(modifier = Modifier.width(16.dp))
+        
         Box(
-            modifier = Modifier.size(32.dp)
+            modifier = Modifier.size(28.dp)
         ) {
             IconButton(
                 onClick = onNotificationClick,
@@ -44,14 +48,14 @@ fun HeaderSection(
                     Icons.Outlined.Notifications,
                     contentDescription = "Notifications",
                     tint = Color(0xFFC1272D),
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             }
             
             if (hasNotification) {
                 Box(
                     modifier = Modifier
-                        .size(10.dp)
+                        .size(8.dp)
                         .align(Alignment.TopEnd)
                         .background(Color(0xFF4CAF50), CircleShape)
                 )

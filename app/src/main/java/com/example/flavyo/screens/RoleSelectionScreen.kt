@@ -29,52 +29,54 @@ fun RoleSelectionScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(24.dp),
+            .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(80.dp))
+        Spacer(modifier = Modifier.weight(0.3f))
         
         Image(
             painter = painterResource(id = R.drawable.flavyo_logo_red),
             contentDescription = "Logo",
-            modifier = Modifier.size(150.dp)
+            modifier = Modifier.size(120.dp)
         )
         
         Text(
             text = "Flavours that melt you!",
             color = Color(0xFFC1272D),
-            fontSize = 24.sp,
+            fontSize = 20.sp,
             fontFamily = CoveredByYourGrace,
             fontWeight = FontWeight.Bold
         )
         
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.weight(0.2f))
         
         Text(
             text = "Choose Your Role",
-            fontSize = 22.sp,
+            fontSize = 18.sp,
             fontFamily = Poppins,
             fontWeight = FontWeight.Bold,
             color = Color.Black
         )
         
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         
         RoleCard(
             title = "Admin",
             description = "Manage orders and products",
-            iconRes = R.drawable.flavyo_logo_red, // Replace with appropriate icon if available
+            iconRes = R.drawable.flavyo_logo_red,
             onClick = onAdminClick
         )
         
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         
         RoleCard(
             title = "User",
             description = "Order your favorite ice creams",
-            iconRes = R.drawable.flavyo_logo_red, // Replace with appropriate icon if available
+            iconRes = R.drawable.flavyo_logo_red,
             onClick = onUserClick
         )
+
+        Spacer(modifier = Modifier.weight(0.5f))
     }
 }
 
@@ -89,35 +91,35 @@ fun RoleCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FF)),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Row(
             modifier = Modifier
-                .padding(20.dp)
+                .padding(16.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
                 painter = painterResource(id = iconRes),
                 contentDescription = null,
-                modifier = Modifier.size(50.dp)
+                modifier = Modifier.size(40.dp)
             )
             
-            Spacer(modifier = Modifier.width(20.dp))
+            Spacer(modifier = Modifier.width(16.dp))
             
             Column {
                 Text(
                     text = title,
-                    fontSize = 20.sp,
+                    fontSize = 16.sp,
                     fontFamily = Poppins,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
                 Text(
                     text = description,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     fontFamily = Poppins,
                     color = Color.Gray
                 )

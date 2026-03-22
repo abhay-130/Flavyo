@@ -48,31 +48,34 @@ fun IceCreamItem(
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(16.dp),
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp),
-        border = BorderStroke(1.dp, Color(0xFFF0F0F0))
+        border = BorderStroke(1.dp, Color(0xFFF5F5F5))
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Updated: Use 'image' field from data (assuming it refers to a drawable name)
             Image(
                 painter = painterResource(id = getDrawableId(data.image)),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(80.dp) // Slightly larger to fit new info
+                    .size(64.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .clickable { onItemClick() }
             )
 
             Column(modifier = Modifier.weight(1f).padding(horizontal = 12.dp).clickable { onItemClick() }) {
-                Text(text = data.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, fontFamily = Poppins)
+                Text(
+                    text = data.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    fontFamily = Poppins,
+                    maxLines = 1
+                )
 
-                // Delete description text from here (it stays in DetailScreen)
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(2.dp))
 
-                // 2. Vertical Price Stack
                 Column {
                     if (data.mrp?.isNotEmpty() == true && data.mrp != data.price) {
                         Text(
@@ -82,14 +85,14 @@ fun IceCreamItem(
                                 fontFamily = Poppins
                             ),
                             color = Color.LightGray,
-                            fontSize = 13.sp
+                            fontSize = 11.sp
                         )
                     }
                     Text(
                         text = "Rs. ${data.price}",
                         color = Color(0xFFC1272D),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
+                        fontSize = 16.sp,
                         fontFamily = Poppins
                     )
                 }
@@ -108,43 +111,41 @@ fun IceCreamItem(
 fun RecentBadge(count: Int) {
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .size(36.dp)
             .background(Color(0xFFC1272D), RoundedCornerShape(8.dp)),
         contentAlignment = Alignment.Center
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
-            Text(text = "x", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
-            Text(text = "$count", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(text = "x", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+            Text(text = "$count", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
 }
 
 @Composable
 fun CounterSection(count: Int, onCountChange: (Int) -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(110.dp)) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(90.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier.fillMaxWidth()
         ) {
-            // MINUS
             IconButtonBox(icon = Icons.Default.Remove, bgColor = Color(0xFFFFEBEE), iconColor = Color.Red) {
                 if (count > 0) onCountChange(count - 1)
             }
 
-            Text(text = "$count", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            Text(text = "$count", fontWeight = FontWeight.Bold, fontSize = 13.sp, fontFamily = Poppins)
 
-            // PLUS
             IconButtonBox(icon = Icons.Default.Add, bgColor = Color(0xFFC1272D), iconColor = Color.White) {
                 onCountChange(count + 1)
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Icon(
             imageVector = Icons.Default.Delete,
             contentDescription = null,
-            tint = Color.Gray,
-            modifier = Modifier.size(20.dp).clickable { onCountChange(0) }
+            tint = Color.LightGray,
+            modifier = Modifier.size(16.dp).clickable { onCountChange(0) }
         )
     }
 }
@@ -153,11 +154,11 @@ fun CounterSection(count: Int, onCountChange: (Int) -> Unit) {
 fun IconButtonBox(icon: androidx.compose.ui.graphics.vector.ImageVector, bgColor: Color, iconColor: Color, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .size(32.dp)
+            .size(28.dp)
             .background(bgColor, RoundedCornerShape(8.dp))
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        Icon(icon, null, tint = iconColor, modifier = Modifier.size(18.dp))
+        Icon(icon, null, tint = iconColor, modifier = Modifier.size(16.dp))
     }
 }

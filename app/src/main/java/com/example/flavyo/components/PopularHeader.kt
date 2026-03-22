@@ -1,5 +1,6 @@
 package com.example.flavyo.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,11 +12,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.flavyo.ui.theme.Poppins
 
 @Composable
-fun PopularHeader() {
-    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text("Popular", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Text("View Menu", color = Color(0xFFC1272D), fontSize = 14.sp)
+fun PopularHeader(onViewMenuClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "Popular",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = Poppins
+        )
+        Text(
+            text = "View Menu",
+            color = Color(0xFFC1272D),
+            fontSize = 14.sp,
+            fontFamily = Poppins,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.clickable { onViewMenuClick() }
+        )
     }
 }

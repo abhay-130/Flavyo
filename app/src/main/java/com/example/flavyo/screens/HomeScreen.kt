@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -28,7 +29,8 @@ fun HomeScreen(
     onItemClick: (IceCreamData) -> Unit,
     onNotificationClick: () -> Unit,
     hasNotification: Boolean,
-    scrollState: LazyListState
+    scrollState: LazyListState,
+    onViewMenuClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         HeaderSection(
@@ -47,8 +49,13 @@ fun HomeScreen(
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 item { BannerCarousel() }
-                item { PopularHeader() }
-                items(iceCreamList) { item ->
+                item { 
+                    PopularHeader(onViewMenuClick = onViewMenuClick) 
+                }
+                // Filter out category headers from the "Popular" list on Home
+                val itemsOnly = iceCreamList.filter { it.id.isNotEmpty() && it.price.isNotEmpty() }
+                
+                items(itemsOnly) { item ->
                     val count = cartItems[item.id] ?: 0
                     IceCreamItem(
                         data = item,

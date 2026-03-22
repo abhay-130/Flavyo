@@ -39,6 +39,7 @@ import com.example.flavyo.screens.PaymentProcessingScreen
 import com.example.flavyo.screens.ProfileScreen
 import com.example.flavyo.screens.SearchScreen
 import com.example.flavyo.screens.UserNotificationScreen
+import com.example.flavyo.screens.UserViewMenuScreen
 import com.example.flavyo.ui.theme.FlavyoTheme
 
 class HomeActivity : ComponentActivity() {
@@ -61,8 +62,10 @@ fun MainAppContainer() {
 
     // Check if user is logged in
     if (userPreferences.userEmail == null) {
-        // Not logged in, redirect to LoginActivity
-        context.startActivity(Intent(context, LoginActivity::class.java))
+        // Not logged in, redirect to RoleSelectionActivity
+        val intent = Intent(context, RoleSelectionActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        context.startActivity(intent)
         (context as? ComponentActivity)?.finish()
         return
     }
@@ -171,7 +174,7 @@ fun MainAppContainer() {
         bottomBar = {
             if (!isConfirmingOrder && !isSelectingPaymentMethod && !isPaying && !orderSuccess && currentScreen != "Notifications" && selectedOrder == null && selectedIceCream == null) {
                 BottomNavigationBar(
-                    currentScreen = currentScreen,
+                    currentScreen = if (currentScreen == "ViewMenu") "Home" else currentScreen,
                     onScreenSelected = { currentScreen = it },
                     hasNotification = hasNotification
                 )
@@ -238,7 +241,32 @@ fun MainAppContainer() {
                                 // Update the preference so the dot doesn't come back for old notifications
                                 userPreferences.lastKnownNotificationCount = notificationList.size
                             },
-                            hasNotification = hasNotification
+                            hasNotification = hasNotification,
+                            onViewMenuClick = { currentScreen = "ViewMenu" }
+                        )
+                    }
+                    "ViewMenu" -> {
+                        UserViewMenuScreen(
+                            iceCreamList = iceCreamList,
+                            cartItems = cartMap,
+                            onUpdateCart = { id, newCount ->
+                                val item = iceCreamList.find { it.id == id }
+                                if (item != null) {
+                                    val newList = cartItems.toMutableList()
+                                    val currentCount = newList.count { it.id == id }
+                                    if (newCount > currentCount) {
+                                        repeat(newCount - currentCount) { newList.add(item) }
+                                    } else if (newCount < currentCount) {
+                                        repeat(currentCount - newCount) {
+                                            val index = newList.indexOfLast { it.id == id }
+                                            if (index != -1) newList.removeAt(index)
+                                        }
+                                    }
+                                    cartItems = newList
+                                }
+                            },
+                            onItemClick = { selectedIceCream = it },
+                            onBack = { currentScreen = "Home" }
                         )
                     }
                     "Search" -> {
@@ -322,7 +350,9 @@ fun MainAppContainer() {
                         onLogout = {
                             userPreferences.userEmail = null
                             userPreferences.lastKnownNotificationCount = 0
-                            context.startActivity(Intent(context, RoleSelectionActivity::class.java))
+                            val intent = Intent(context, RoleSelectionActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            context.startActivity(intent)
                             (context as? ComponentActivity)?.finish()
                         }
                     )

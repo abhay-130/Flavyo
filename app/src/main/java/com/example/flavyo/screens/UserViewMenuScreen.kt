@@ -35,12 +35,16 @@ fun UserViewMenuScreen(
     onItemClick: (IceCreamData) -> Unit,
     onBack: () -> Unit
 ) {
-    // Logic to separate items by category
+    // Logic to separate items by category and assign category to items
     val groupedItems = mutableListOf<Any>()
+    var currentCategory = ""
+    
     iceCreamList.forEach { item ->
         if (item.id.isEmpty() || item.price.isEmpty()) {
-            groupedItems.add(item.name) // Category Header
+            currentCategory = item.name // Category Header
+            groupedItems.add(currentCategory)
         } else {
+            item.category = currentCategory // Assign the current category to the item
             groupedItems.add(item) // Ice Cream Item
         }
     }
@@ -48,9 +52,8 @@ fun UserViewMenuScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8F9FF)) // Entire background is grey-blue
+            .background(Color(0xFFF8F9FF))
     ) {
-        // Custom Header to match Search Menu style and reduce padding
         Box(
             modifier = Modifier
                 .fillMaxWidth()

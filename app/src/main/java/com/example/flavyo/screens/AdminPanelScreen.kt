@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddCircleOutline
@@ -104,6 +106,7 @@ fun AdminPanelScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -208,20 +211,34 @@ fun AdminPanelScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Grid Menu
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item { AdminActionCard("Add Item", Icons.Default.AddCircleOutline, 40.dp, onAddMenuClick) }
-            item { AdminActionCard("All Items", Icons.Default.Visibility, 40.dp, onAllItemMenuClick) }
-            item { AdminActionCard("User Profiles", Icons.Default.AccountCircle, 40.dp, onProfileClick) }
-            item { AdminActionCard("Create New User", Icons.Default.PersonAddAlt, 40.dp, onCreateUserClick) }
-            item { AdminActionCard("History", Icons.Default.ShoppingBag, 40.dp, onOrderHistoryClick) }
-            item { AdminActionCard("Log Out", Icons.Default.Logout, 40.dp, onLogoutClick) }
+        // Grid Menu - Using a non-lazy layout to work with Column's verticalScroll
+        val menuItems = listOf(
+            Triple("Add Item", Icons.Default.AddCircleOutline, onAddMenuClick),
+            Triple("All Items", Icons.Default.Visibility, onAllItemMenuClick),
+            Triple("User Profiles", Icons.Default.AccountCircle, onProfileClick),
+            Triple("Create New User", Icons.Default.PersonAddAlt, onCreateUserClick),
+            Triple("History", Icons.Default.ShoppingBag, onOrderHistoryClick),
+            Triple("Log Out", Icons.Default.Logout, onLogoutClick)
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            for (i in menuItems.indices step 2) {
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        AdminActionCard(menuItems[i].first, menuItems[i].second, 40.dp, menuItems[i].third)
+                    }
+                    if (i + 1 < menuItems.size) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            AdminActionCard(menuItems[i + 1].first, menuItems[i + 1].second, 40.dp, menuItems[i + 1].third)
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+            }
         }
+
+        Spacer(modifier = Modifier.height(32.dp))
 
         // Footer
         Text(

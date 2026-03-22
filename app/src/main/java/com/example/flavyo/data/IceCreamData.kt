@@ -17,8 +17,9 @@ data class IceCreamData(
     val price: String,
     @SerializedName("description")
     val description: String? = null,
-    @SerializedName("image") // Changed from imageResName to image to match your sheet
-    val image: String
+    @SerializedName("image") 
+    val image: String,
+    var category: String? = null
 )
 
 @SuppressLint("DiscouragedApi")

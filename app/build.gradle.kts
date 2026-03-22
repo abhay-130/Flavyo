@@ -1,3 +1,6 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -11,8 +14,9 @@ android {
         applicationId = "com.example.flavyo"
         minSdk = 23
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        // Incrementing versionCode to 2 for the update
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,6 +37,16 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+    }
+
+    // Rename output APK using the applicationVariants API
+    applicationVariants.all {
+        val variant = this
+        val date = SimpleDateFormat("yyyy-MM-dd").format(Date())
+        variant.outputs.all {
+            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            output.outputFileName = "Flavyo-v${variant.versionName}-$date.apk"
+        }
     }
 }
 

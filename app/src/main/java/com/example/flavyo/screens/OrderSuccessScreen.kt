@@ -16,8 +16,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
@@ -117,7 +119,9 @@ fun OrderSuccessScreen(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(130.dp))
 
@@ -186,6 +190,8 @@ fun OrderSuccessScreen(
             ) {
                 Text("Go Home", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, fontFamily = Poppins)
             }
+            
+            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 }

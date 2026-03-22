@@ -2,7 +2,9 @@ package com.example.flavyo.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,59 +35,67 @@ fun PaymentProcessingScreen(
             .background(Color(0xFFF5F5F5)), // Solid light grey background to hide everything behind
         contentAlignment = Alignment.Center
     ) {
-        Card(
+        Column(
             modifier = Modifier
-                .fillMaxWidth(0.85f)
-                .wrapContentHeight(),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(8.dp)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.85f)
+                    .wrapContentHeight(),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(8.dp)
             ) {
-                Text(
-                    text = "Processing Payment",
-                    fontFamily = Poppins,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                CircularProgressIndicator(
-                    color = Color(0xFFC1272D),
-                    strokeWidth = 4.dp,
-                    modifier = Modifier.size(50.dp)
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    text = "Amount: Rs. $totalAmount",
-                    fontFamily = Poppins,
-                    fontSize = 16.sp,
-                    color = Color.Gray
-                )
-
-                Text(
-                    text = "Please do not press back or close the app",
-                    fontFamily = Poppins,
-                    fontSize = 12.sp,
-                    color = Color.LightGray,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                TextButton(onClick = onCancel) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
-                        "Cancel Transaction",
-                        color = Color(0xFFC1272D),
-                        fontFamily = Poppins
+                        text = "Processing Payment",
+                        fontFamily = Poppins,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
                     )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    CircularProgressIndicator(
+                        color = Color(0xFFC1272D),
+                        strokeWidth = 4.dp,
+                        modifier = Modifier.size(50.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Text(
+                        text = "Amount: Rs. $totalAmount",
+                        fontFamily = Poppins,
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+
+                    Text(
+                        text = "Please do not press back or close the app",
+                        fontFamily = Poppins,
+                        fontSize = 12.sp,
+                        color = Color.LightGray,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    TextButton(onClick = onCancel) {
+                        Text(
+                            "Cancel Transaction",
+                            color = Color(0xFFC1272D),
+                            fontFamily = Poppins
+                        )
+                    }
                 }
             }
         }
